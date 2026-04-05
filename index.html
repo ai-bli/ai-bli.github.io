@@ -1,211 +1,371 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLI Intelligence | Professional AI Suite</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>BLI Intelligence OS | Professional Interface</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     <style>
         :root {
-            --bg-black: #000000;
-            --sidebar-bg: #0d0d0d;
-            --border-color: #262626;
-            --text-main: #ececec;
-            --text-secondary: #b4b4b4;
-            --accent-white: #ffffff;
+            --bg-deep: #000000;
+            --sidebar-bg: #090909;
+            --border: #202020;
+            --text-p: #d1d1d1;
+            --accent: #ffffff;
+            --hover: #1a1a1a;
+            --sidebar-width: 280px;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg-black); color: var(--text-main); font-family: 'Inter', sans-serif; height: 100vh; display: flex; overflow: hidden; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-deep); color: white; height: 100vh; overflow: hidden; display: flex; }
 
-        /* Sidebar - Geçmiş Paneli */
+        /* --- SIDEBAR --- */
         .sidebar {
-            width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color);
-            display: flex; flex-direction: column; padding: 15px; transition: 0.3s;
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
         }
 
-        .new-chat-btn {
-            border: 1px solid var(--border-color); border-radius: 6px; padding: 12px;
-            text-align: left; font-size: 14px; cursor: pointer; transition: 0.2s; margin-bottom: 20px;
+        .sidebar.closed { transform: translateX(-100%); position: absolute; height: 100%; }
+
+        .new-chat-container { margin-bottom: 20px; }
+        .btn-new-chat {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            transition: 0.2s;
         }
-        .new-chat-btn:hover { background: #1a1a1a; }
+        .btn-new-chat:hover { background: var(--hover); border-color: #444; }
 
-        .history-list { flex: 1; overflow-y: auto; font-size: 13px; color: var(--text-secondary); }
-        .history-item { padding: 10px; border-radius: 5px; cursor: pointer; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .history-item:hover { background: #1a1a1a; color: white; }
+        .history-section { flex: 1; overflow-y: auto; margin-top: 10px; }
+        .history-label { font-size: 11px; color: #555; font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .history-item {
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #ccc;
+            cursor: pointer;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .history-item:hover { background: var(--hover); color: white; }
+        .history-item i { font-size: 12px; color: #444; }
 
-        /* Ana Sohbet Alanı */
-        .main-chat { flex: 1; display: flex; flex-direction: column; position: relative; }
-
-        /* Model Seçici - ChatGPT Stili */
-        .model-selector {
-            padding: 15px; display: flex; justify-content: center; border-bottom: 1px solid transparent;
-            position: absolute; top: 0; width: 100%; z-index: 10;
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--bg-deep);
+            transition: margin-left 0.3s ease;
         }
 
-        .model-dropdown {
-            background: #202123; border: 1px solid var(--border-color); border-radius: 8px;
-            padding: 8px 15px; font-size: 14px; color: white; cursor: pointer; display: flex; align-items: center; gap: 10px;
+        /* Top Bar */
+        .top-bar {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid transparent;
+            justify-content: space-between;
         }
 
-        .chat-display {
-            flex: 1; overflow-y: auto; padding-top: 80px; padding-bottom: 150px;
-            display: flex; flex-direction: column; align-items: center;
+        .menu-toggle {
+            font-size: 20px;
+            cursor: pointer;
+            color: #888;
+            transition: 0.2s;
+            z-index: 1001;
+        }
+        .menu-toggle:hover { color: white; }
+
+        .model-picker {
+            background: #111;
+            border: 1px solid var(--border);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
         }
 
-        .message-row { width: 100%; display: flex; justify-content: center; padding: 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .message-row.ai { background: #0a0a0a; }
+        /* Chat Display */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 180px;
+            display: flex;
+            flex-direction: column;
+        }
 
-        .message-content { max-width: 750px; width: 100%; display: flex; gap: 20px; font-size: 15px; line-height: 1.6; }
-        .avatar { width: 30px; height: 30px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0; }
-        .ai-avatar { background: white; color: black; }
-        .user-avatar { background: #5436da; color: white; }
+        .msg-row { width: 100%; display: flex; justify-content: center; padding: 30px 20px; }
+        .msg-row.ai { background: rgba(255,255,255,0.02); border-top: 1px solid #111; border-bottom: 1px solid #111; }
+        
+        .msg-inner { max-width: 800px; width: 100%; display: flex; gap: 20px; }
+        .avatar {
+            width: 34px; height: 34px; border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 12px; flex-shrink: 0;
+            font-family: 'Orbitron';
+        }
+        .user-avatar { background: #333; color: white; }
+        .ai-avatar { background: white; color: black; box-shadow: 0 0 15px rgba(255,255,255,0.1); }
 
-        /* Alt Giriş Alanı */
-        .input-wrapper {
-            position: absolute; bottom: 0; width: 100%; padding: 20px 0;
-            background: linear-gradient(transparent, var(--bg-black) 50%);
-            display: flex; flex-direction: column; align-items: center;
+        .text-box { font-size: 15px; line-height: 1.7; color: #ececec; word-break: break-word; }
+        .text-box a { color: white; font-weight: 700; }
+
+        /* Input Zone */
+        .input-zone {
+            position: absolute;
+            bottom: 0; width: 100%;
+            padding: 30px 0;
+            background: linear-gradient(transparent, var(--bg-deep) 40%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .input-container {
-            max-width: 750px; width: 90%; background: #202123; border: 1px solid var(--border-color);
-            border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; gap: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 90%; max-width: 800px;
+            background: #151515;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 15px; }
-        .send-btn { color: var(--text-secondary); cursor: pointer; transition: 0.2s; }
-        .send-btn:hover { color: white; }
+        .input-container textarea {
+            flex: 1; background: transparent; border: none; color: white;
+            outline: none; font-size: 15px; resize: none; max-height: 200px;
+        }
 
-        .footer-note { font-size: 11px; color: #555; margin-top: 12px; }
+        .action-btn { color: #555; cursor: pointer; transition: 0.2s; font-size: 18px; }
+        .action-btn.active { color: white; }
+        .action-btn:hover { color: white; }
 
-        .beta-tag { font-size: 10px; background: #333; color: #ccc; padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
+        .branding-footer { font-size: 11px; color: #444; margin-top: 15px; letter-spacing: 0.5px; }
 
-        a { color: white; text-decoration: underline; }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #333; }
+
+        @media (max-width: 768px) {
+            .sidebar { position: fixed; height: 100%; left: 0; }
+            .sidebar.closed { transform: translateX(-100%); }
+        }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="new-chat-btn"><i class="fa-solid fa-plus"></i> New Chat</div>
-        <div class="history-list" id="history">
-            <div class="history-item">BLI Client Information</div>
-            <div class="history-item">Recruitment Procedures</div>
-            <div class="history-item">Order Tracking Guide</div>
+    <div class="sidebar" id="sidebar">
+        <div class="new-chat-container">
+            <button class="btn-new-chat" onclick="resetChat()">
+                <i class="fa-solid fa-plus"></i> Yeni Sohbet
+            </button>
+        </div>
+
+        <div class="history-section">
+            <p class="history-label">Geçmiş Konuşmalar</p>
+            <div id="historyList">
+                <div class="history-item"><i class="fa-regular fa-comment"></i> BLI Client Kurulumu</div>
+                <div class="history-item"><i class="fa-regular fa-comment"></i> Esports Başvuru Şartları</div>
+                <div class="history-item"><i class="fa-regular fa-comment"></i> Shopier Entegrasyonu</div>
+            </div>
+        </div>
+
+        <div style="padding-top: 20px; border-top: 1px solid #222; font-size: 12px; color: #444;">
+            <p><i class="fa-solid fa-circle-user"></i> BLI User Admin</p>
         </div>
     </div>
 
-    <div class="main-chat">
-        <div class="model-selector">
-            <select class="model-dropdown" id="modelSelect">
-                <option value="3.0">BLI 3.0 (Legacy)</option>
-                <option value="3.1">BLI 3.1 (Stable)</option>
-                <option value="3.2">BLI 3.2 (Creative)</option>
-                <option value="3.3">BLI 3.3 (Pro Beta)</option>
-                <option value="3.4" selected>BLI 3.4 (Advanced Alpha)</option>
-            </select>
-            <span class="beta-tag">BETA</span>
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars-staggered"></i>
+            </div>
+            <div>
+                <select class="model-picker" id="modelSelect">
+                    <option value="3.0">BLI-3.0 Classic</option>
+                    <option value="3.1">BLI-3.1 Lite</option>
+                    <option value="3.2">BLI-3.2 Creative</option>
+                    <option value="3.3">BLI-3.3 Pro</option>
+                    <option value="3.4" selected>BLI-3.4 Advanced Alpha</option>
+                </select>
+            </div>
+            <div style="width: 20px;"></div>
         </div>
 
-        <div class="chat-display" id="chatDisplay">
-            <div class="message-row ai">
-                <div class="message-content">
+        <div class="chat-area" id="chatArea">
+            <div class="msg-row ai">
+                <div class="msg-inner">
                     <div class="avatar ai-avatar">BI</div>
-                    <div class="text">How can I assist you today? Our systems are ready for your inquiries.</div>
+                    <div class="text-box">
+                        Merhaba. Ben BLI Intelligence Yapay Zeka Sistemi. 
+                        Sipariş takibi, BLI Client teknik desteği veya ekip üyelikleri hakkında profesyonel bilgi alabilirsiniz. 
+                        Size nasıl yardımcı olabilirim?
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="input-wrapper">
+        <div class="input-zone">
             <div class="input-container">
-                <input type="text" id="userInput" placeholder="Send a message..." onkeypress="if(event.key==='Enter') sendMessage()">
-                <div class="send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></div>
+                <i class="fa-solid fa-paperclip action-btn"></i>
+                <textarea id="userInput" placeholder="Mesajınızı buraya yazın..." rows="1" oninput="autoGrow(this)" onkeypress="handleKey(event)"></textarea>
+                <i class="fa-solid fa-arrow-up-right-from-square action-btn active" onclick="processMessage()"></i>
             </div>
-            <p class="footer-note">BLI Intelligence may provide info about BLI Esports services. Verify important data.</p>
+            <p class="branding-footer">BLI Intelligence v3.5 Alpha Build | © 2026 BLI Esports</p>
         </div>
     </div>
 
-<script>
-    const chatDisplay = document.getElementById('chatDisplay');
-    const userInput = document.getElementById('userInput');
-    const modelSelect = document.getElementById('modelSelect');
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const chatArea = document.getElementById('chatArea');
+        const userInput = document.getElementById('userInput');
+        const modelSelect = document.getElementById('modelSelect');
 
-    const responses = {
-        tr: {
-            order: "Sistemlerimizi kontrol ettiğimde yakın zamanda bir siparişiniz bulunmadığı görülüyor. Eğer bir satın alım gerçekleştirdiyseniz, <a href='https://www.shopier.com/' target='_blank'>Shopier</a> üzerinden detayları görüntüleyebilirsiniz.",
-            members: "BLI Esports bünyesindeki yetkili kadromuz şu şekildedir: <br>• FATİH EROL ***** <br>• ÇINAR ********* <br><br>Başvuru işlemleri için <a href='https://bliesports.github.io/recruitment'>Recruitment</a> sayfamızı ziyaret edebilirsiniz.",
-            client: "BLI Client yazılımına erişmek için resmi indirme sayfamızı kullanabilirsiniz: <a href='https://bliesports.github.io/bliclient'>bliesports.github.io/bliclient</a>",
-            error: "Üzgünüm, bu konu hakkında detaylı bilgiye sahip değilim. Size BLI Client, sipariş durumları veya ekip bilgileri konusunda yardımcı olabilirim."
-        },
-        en: {
-            order: "According to our records, you do not have any recent orders. If you have made a purchase, please check your status on <a href='https://www.shopier.com/' target='_blank'>Shopier</a>.",
-            members: "Authorized personnel within BLI Esports: <br>• FATİH EROL ***** <br>• ÇINAR ********* <br><br>You may apply via <a href='https://bliesports.github.io/recruitment'>Recruitment</a> page.",
-            client: "To access BLI Client software, please use our official download page: <a href='https://bliesports.github.io/bliclient'>bliesports.github.io/bliclient</a>",
-            error: "I apologize, but I do not have information regarding this topic. I can assist you with BLI Client, order status, or team information."
+        // Sidebar Aç/Kapat
+        function toggleSidebar() {
+            sidebar.classList.toggle('closed');
         }
-    };
 
-    function sendMessage() {
-        const text = userInput.value.trim();
-        if (text === "") return;
+        // Metin kutusu büyütme
+        function autoGrow(element) {
+            element.style.height = "5px";
+            element.style.height = (element.scrollHeight) + "px";
+        }
 
-        appendMessage(text, 'user');
-        userInput.value = "";
+        // Enter ile Gönder
+        function handleKey(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                processMessage();
+            }
+        }
 
-        setTimeout(() => {
-            const lowerText = text.toLowerCase();
-            const currentModel = modelSelect.value;
-            
-            // Gerçek Dil Algılama (İngilizce kelimeler varsa İngilizce cevap verir)
+        // Yeni Sohbet
+        function resetChat() {
+            chatArea.innerHTML = `
+                <div class="msg-row ai">
+                    <div class="msg-inner">
+                        <div class="avatar ai-avatar">BI</div>
+                        <div class="text-box">Yeni bir oturum başlatıldı. Size nasıl yardımcı olabilirim?</div>
+                    </div>
+                </div>
+            `;
+            userInput.value = "";
+        }
+
+        // Mesaj İşleme
+        function processMessage() {
+            const val = userInput.value.trim();
+            if (val === "") return;
+
+            // Kullanıcı mesajını ekle
+            appendMsg(val, 'user');
+            userInput.value = "";
+            userInput.style.height = "auto";
+
+            // Geçmişe ekle
+            addHistory(val);
+
+            // AI Düşünüyor simülasyonu
+            setTimeout(() => {
+                const response = getAIResponse(val);
+                appendMsg(response, 'ai');
+            }, 800);
+        }
+
+        function getAIResponse(input) {
+            const raw = input.toLowerCase();
+            const model = modelSelect.value;
             let lang = "tr";
-            const englishKeywords = ["hello", "hi", "hey", "order", "what", "how", "who", "sorry", "client"];
-            if (englishKeywords.some(word => lowerText.includes(word)) && !/[açıöüşĞİ]/.test(lowerText)) {
-                lang = "en";
-            }
 
-            let reply = "";
-            let prefix = currentModel >= 3.3 ? "[System v" + currentModel + "]: " : "";
+            // Dil Algılama
+            const enKeywords = ["hello", "hi", "how", "what", "order", "client", "who", "sorry"];
+            if (enKeywords.some(w => raw.includes(w)) && !/[açıöüşĞİ]/.test(raw)) lang = "en";
 
-            if (lowerText.includes("sipariş") || lowerText.includes("order")) {
-                reply = prefix + responses[lang].order;
-            } else if (lowerText.includes("üye") || lowerText.includes("member") || lowerText.includes("fatih") || lowerText.includes("çınar")) {
-                reply = prefix + responses[lang].members;
-            } else if (lowerText.includes("client") || lowerText.includes("indir") || lowerText.includes("download")) {
-                reply = prefix + responses[lang].client;
-            } else {
-                reply = prefix + responses[lang].error;
-            }
+            // Profesyonel Yanıt Mantığı
+            const db = {
+                tr: {
+                    order: "Veritabanı kayıtlarımıza göre şu anda adınıza tanımlanmış aktif bir sipariş bulunmamaktadır. Eğer bir işlem gerçekleştirdiyseniz, ödeme onayı için <a href='https://www.shopier.com/' target='_blank'>Shopier Dashboard</a> sayfanızı kontrol etmenizi öneririm.",
+                    client: "BLI Client yazılımının en güncel sürümünü (v1.2.4) resmi sunucularımızdan indirebilirsiniz: <br><br> <a href='https://bliesports.github.io/bliclient'>bliesports.github.io/bliclient</a>",
+                    staff: "BLI Esports Üst Yönetim ve Yetkili Listesi: <br><br> • <b>FATİH EROL</b> [CHIEF EXECUTIVE] <br> • <b>ÇINAR</b> [OPERATIONS MANAGER] <br><br> Ekibimize katılmak için <a href='https://bliesports.github.io/recruitment'>Recruitment Portalı</a> üzerinden başvurunuzu iletebilirsiniz.",
+                    error: "Üzgünüm, talebinizi anlayamadım. Ben sadece BLI Esports ekosistemi (Siparişler, Client, Üyelik) üzerine uzmanlaşmış bir yapay zekayım. Lütfen bu konularda bir soru sorunuz."
+                },
+                en: {
+                    order: "According to our records, there is no active order associated with your account. If you have made a transaction, please verify it via <a href='https://www.shopier.com/' target='_blank'>Shopier Dashboard</a>.",
+                    client: "You can download the latest version of BLI Client (v1.2.4) from our official page: <br><br> <a href='https://bliesports.github.io/bliclient'>bliesports.github.io/bliclient</a>",
+                    staff: "BLI Esports Authorized Personnel: <br><br> • <b>FATİH EROL</b> [CHIEF EXECUTIVE] <br> • <b>ÇINAR</b> [OPERATIONS MANAGER] <br><br> You can apply via our <a href='https://bliesports.github.io/recruitment'>Recruitment Portal</a>.",
+                    error: "I apologize, but I could not process your request. I am an AI specialized in the BLI Esports ecosystem (Orders, Client, Recruitment). Please ask questions related to these topics."
+                }
+            };
 
-            appendMessage(reply, 'ai');
-        }, 800);
-    }
+            let finalMsg = "";
+            if (raw.includes("sipariş") || raw.includes("order")) finalMsg = db[lang].order;
+            else if (raw.includes("client") || raw.includes("indir") || raw.includes("download")) finalMsg = db[lang].client;
+            else if (raw.includes("üye") || raw.includes("member") || raw.includes("fatih") || raw.includes("çınar") || raw.includes("ekip")) finalMsg = db[lang].staff;
+            else finalMsg = db[lang].error;
 
-    function appendMessage(text, sender) {
-        const row = document.createElement('div');
-        row.className = `message-row ${sender}`;
-        
-        const content = `
-            <div class="message-content">
-                <div class="avatar ${sender}-avatar">${sender === 'ai' ? 'BI' : 'U'}</div>
-                <div class="text">${text}</div>
-            </div>
-        `;
-        
-        row.innerHTML = content;
-        chatDisplay.appendChild(row);
-        chatDisplay.scrollTop = chatDisplay.scrollHeight;
+            // Model Farklılığı (3.4 ise başına sistem kodu ekle)
+            if(model === "3.4") return `<b>[BLI-CORE-3.4]:</b> ` + finalMsg;
+            return finalMsg;
+        }
 
-        // Geçmişe ekle (Sadece kullanıcı mesajlarını)
-        if(sender === 'user') {
-            const hist = document.getElementById('history');
+        function appendMsg(text, sender) {
+            const row = document.createElement('div');
+            row.className = `msg-row ${sender === 'ai' ? 'ai' : ''}`;
+            
+            row.innerHTML = `
+                <div class="msg-inner">
+                    <div class="avatar ${sender === 'ai' ? 'ai-avatar' : 'user-avatar'}">
+                        ${sender === 'ai' ? 'BI' : 'U'}
+                    </div>
+                    <div class="text-box">${text}</div>
+                </div>
+            `;
+            
+            chatArea.appendChild(row);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function addHistory(text) {
+            const list = document.getElementById('historyList');
             const item = document.createElement('div');
             item.className = 'history-item';
-            item.innerText = text;
-            hist.prepend(item);
+            item.innerHTML = `<i class="fa-regular fa-comment"></i> ${text.substring(0, 25)}...`;
+            list.prepend(item);
         }
-    }
-</script>
+    </script>
 </body>
 </html>
