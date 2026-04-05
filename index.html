@@ -3,275 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLI INTELLIGENCE | Global AI Assistant</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>BLI Intelligence | Professional AI Suite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
     <style>
         :root {
-            --bli-red: #ff3333;
-            --bli-dark-red: #cc0000;
-            --bg-black: #050505;
-            --card-bg: #0f0f0f;
-            --text-gray: #a0a0a0;
-            --glow: 0 0 15px rgba(255, 51, 51, 0.3);
+            --bg-black: #000000;
+            --sidebar-bg: #0d0d0d;
+            --border-color: #262626;
+            --text-main: #ececec;
+            --text-secondary: #b4b4b4;
+            --accent-white: #ffffff;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg-black); color: var(--text-main); font-family: 'Inter', sans-serif; height: 100vh; display: flex; overflow: hidden; }
 
-        body {
-            background-color: var(--bg-black);
-            color: #fff;
-            font-family: 'Inter', sans-serif;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
+        /* Sidebar - Geçmiş Paneli */
+        .sidebar {
+            width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column; padding: 15px; transition: 0.3s;
         }
 
-        /* Arka Plan Efekti */
-        .bg-grid {
-            position: fixed; inset: 0;
-            background-image: linear-gradient(rgba(255, 51, 51, 0.05) 1px, transparent 1px), 
-                              linear-gradient(90deg, rgba(255, 51, 51, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-            z-index: -1;
-            mask-image: radial-gradient(circle, black, transparent 80%);
+        .new-chat-btn {
+            border: 1px solid var(--border-color); border-radius: 6px; padding: 12px;
+            text-align: left; font-size: 14px; cursor: pointer; transition: 0.2s; margin-bottom: 20px;
+        }
+        .new-chat-btn:hover { background: #1a1a1a; }
+
+        .history-list { flex: 1; overflow-y: auto; font-size: 13px; color: var(--text-secondary); }
+        .history-item { padding: 10px; border-radius: 5px; cursor: pointer; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-item:hover { background: #1a1a1a; color: white; }
+
+        /* Ana Sohbet Alanı */
+        .main-chat { flex: 1; display: flex; flex-direction: column; position: relative; }
+
+        /* Model Seçici - ChatGPT Stili */
+        .model-selector {
+            padding: 15px; display: flex; justify-content: center; border-bottom: 1px solid transparent;
+            position: absolute; top: 0; width: 100%; z-index: 10;
         }
 
-        .ai-wrapper {
-            width: 95%; max-width: 900px;
-            height: 85vh;
-            background: var(--card-bg);
-            border: 1px solid #222;
-            border-radius: 24px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-            position: relative;
+        .model-dropdown {
+            background: #202123; border: 1px solid var(--border-color); border-radius: 8px;
+            padding: 8px 15px; font-size: 14px; color: white; cursor: pointer; display: flex; align-items: center; gap: 10px;
         }
 
-        /* Header */
-        .ai-header {
-            padding: 20px 30px;
-            border-bottom: 1px solid #222;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .chat-display {
+            flex: 1; overflow-y: auto; padding-top: 80px; padding-bottom: 150px;
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        .ai-brand { display: flex; align-items: center; gap: 15px; }
-        .ai-brand img { height: 35px; filter: drop-shadow(var(--glow)); }
-        .ai-brand h1 { font-family: 'Orbitron'; font-size: 16px; letter-spacing: 2px; }
-        
-        .status-badge {
-            background: rgba(255, 51, 51, 0.1);
-            color: var(--bli-red);
-            border: 1px solid var(--bli-red);
-            font-size: 10px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-family: 'Orbitron';
-            text-transform: uppercase;
-            animation: pulse 2s infinite;
+        .message-row { width: 100%; display: flex; justify-content: center; padding: 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .message-row.ai { background: #0a0a0a; }
+
+        .message-content { max-width: 750px; width: 100%; display: flex; gap: 20px; font-size: 15px; line-height: 1.6; }
+        .avatar { width: 30px; height: 30px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0; }
+        .ai-avatar { background: white; color: black; }
+        .user-avatar { background: #5436da; color: white; }
+
+        /* Alt Giriş Alanı */
+        .input-wrapper {
+            position: absolute; bottom: 0; width: 100%; padding: 20px 0;
+            background: linear-gradient(transparent, var(--bg-black) 50%);
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        @keyframes pulse {
-            0% { opacity: 0.6; }
-            50% { opacity: 1; }
-            100% { opacity: 0.6; }
+        .input-container {
+            max-width: 750px; width: 90%; background: #202123; border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* Chat Area */
-        .chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+        input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 15px; }
+        .send-btn { color: var(--text-secondary); cursor: pointer; transition: 0.2s; }
+        .send-btn:hover { color: white; }
 
-        .chat-container::-webkit-scrollbar { width: 5px; }
-        .chat-container::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        .footer-note { font-size: 11px; color: #555; margin-top: 12px; }
 
-        .message {
-            max-width: 75%;
-            padding: 15px 20px;
-            border-radius: 18px;
-            font-size: 14px;
-            line-height: 1.6;
-            position: relative;
-            animation: fadeIn 0.4s ease;
-        }
+        .beta-tag { font-size: 10px; background: #333; color: #ccc; padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .ai-message {
-            background: #1a1a1a;
-            align-self: flex-start;
-            border-bottom-left-radius: 2px;
-            border: 1px solid #333;
-        }
-
-        .user-message {
-            background: var(--bli-red);
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 2px;
-            font-weight: 500;
-        }
-
-        /* Input Area */
-        .input-box {
-            padding: 25px 30px;
-            background: #0c0c0c;
-            border-top: 1px solid #222;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .input-box input {
-            flex: 1;
-            background: #151515;
-            border: 1px solid #333;
-            padding: 16px 20px;
-            border-radius: 14px;
-            color: white;
-            font-family: 'Inter';
-            outline: none;
-            transition: 0.3s;
-        }
-
-        .input-box input:focus { border-color: var(--bli-red); background: #1a1a1a; }
-
-        .send-btn {
-            background: var(--bli-red);
-            color: white;
-            border: none;
-            width: 50px; height: 50px;
-            border-radius: 14px;
-            cursor: pointer;
-            transition: 0.3s;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        .send-btn:hover { background: var(--bli-dark-red); transform: scale(1.05); }
-
-        .loading-dots span {
-            display: inline-block;
-            width: 6px; height: 6px;
-            background: var(--text-gray);
-            border-radius: 50%;
-            margin: 0 2px;
-            animation: bounce 1.4s infinite ease-in-out both;
-        }
-        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
-        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
-
-        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-        
-        a { color: #fff; font-weight: bold; text-decoration: underline; }
+        a { color: white; text-decoration: underline; }
     </style>
 </head>
 <body>
 
-<div class="bg-grid"></div>
-
-<div class="ai-wrapper">
-    <div class="ai-header">
-        <div class="ai-brand">
-            <img src="../logo1616.png" alt="BLI">
-            <h1>BLI INTELLIGENCE</h1>
-        </div>
-        <div class="status-badge">Global Beta v2.0</div>
-    </div>
-
-    <div class="chat-container" id="chatBox">
-        <div class="message ai-message">
-            <i class="fa-solid fa-robot" style="margin-right: 8px; color: var(--bli-red);"></i>
-            Hello! I am BLI AI. How can I help you today? / Merhaba! Ben BLI Yapay Zeka, size nasıl yardımcı olabilirim?
+    <div class="sidebar">
+        <div class="new-chat-btn"><i class="fa-solid fa-plus"></i> New Chat</div>
+        <div class="history-list" id="history">
+            <div class="history-item">BLI Client Information</div>
+            <div class="history-item">Recruitment Procedures</div>
+            <div class="history-item">Order Tracking Guide</div>
         </div>
     </div>
 
-    <div class="input-box">
-        <input type="text" id="userInput" placeholder="Ask anything... / Bir şey sor..." onkeypress="if(event.key==='Enter') handleSend()">
-        <button class="send-btn" onclick="handleSend()">
-            <i class="fa-solid fa-paper-plane"></i>
-        </button>
+    <div class="main-chat">
+        <div class="model-selector">
+            <select class="model-dropdown" id="modelSelect">
+                <option value="3.0">BLI 3.0 (Legacy)</option>
+                <option value="3.1">BLI 3.1 (Stable)</option>
+                <option value="3.2">BLI 3.2 (Creative)</option>
+                <option value="3.3">BLI 3.3 (Pro Beta)</option>
+                <option value="3.4" selected>BLI 3.4 (Advanced Alpha)</option>
+            </select>
+            <span class="beta-tag">BETA</span>
+        </div>
+
+        <div class="chat-display" id="chatDisplay">
+            <div class="message-row ai">
+                <div class="message-content">
+                    <div class="avatar ai-avatar">BI</div>
+                    <div class="text">How can I assist you today? Our systems are ready for your inquiries.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-wrapper">
+            <div class="input-container">
+                <input type="text" id="userInput" placeholder="Send a message..." onkeypress="if(event.key==='Enter') sendMessage()">
+                <div class="send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></div>
+            </div>
+            <p class="footer-note">BLI Intelligence may provide info about BLI Esports services. Verify important data.</p>
+        </div>
     </div>
-</div>
 
 <script>
-    const chatBox = document.getElementById('chatBox');
+    const chatDisplay = document.getElementById('chatDisplay');
     const userInput = document.getElementById('userInput');
+    const modelSelect = document.getElementById('modelSelect');
 
-    // BLI Data & Logic
     const responses = {
         tr: {
-            order: "Yakın bir zamanda alışveriş yapmadınız gibi görünüyor kanka. Ama gerçekten bir ürün aldıysan <a href='https://www.shopier.com/' target='_blank'>Shopier</a> üzerinden görüntüleyebilirsin.",
-            members: "Kadromuz: <br>• FATİH EROL ***** <br>• ÇINAR ********* <br><br><a href='https://bliesports.github.io/recruitment'>Buradan başvurabilirsin!</a>",
-            client: "BLI Client'ı hemen buradan indirebilirsin: <a href='https://bliesports.github.io/bliclient'>bliesports.github.io/bliclient</a>",
-            unknown: "Kanka bu konuda bilgim yok maalesef. Sadece BLI Client, Siparişler ve Ekip hakkında konuşabilirim."
+            order: "Sistemlerimizi kontrol ettiğimde yakın zamanda bir siparişiniz bulunmadığı görülüyor. Eğer bir satın alım gerçekleştirdiyseniz, <a href='https://www.shopier.com/' target='_blank'>Shopier</a> üzerinden detayları görüntüleyebilirsiniz.",
+            members: "BLI Esports bünyesindeki yetkili kadromuz şu şekildedir: <br>• FATİH EROL ***** <br>• ÇINAR ********* <br><br>Başvuru işlemleri için <a href='https://bliesports.github.io/recruitment'>Recruitment</a> sayfamızı ziyaret edebilirsiniz.",
+            client: "BLI Client yazılımına erişmek için resmi indirme sayfamızı kullanabilirsiniz: <a href='https://bliesports.github.io/bliclient'>bliesports.github.io/bliclient</a>",
+            error: "Üzgünüm, bu konu hakkında detaylı bilgiye sahip değilim. Size BLI Client, sipariş durumları veya ekip bilgileri konusunda yardımcı olabilirim."
         },
         en: {
-            order: "It seems you haven't made a purchase recently. If you did, you can check it via <a href='https://www.shopier.com/' target='_blank'>Shopier</a>.",
-            members: "Our Core Team: <br>• FATİH EROL ***** <br>• ÇINAR ********* <br><br><a href='https://bliesports.github.io/recruitment'>Join us here!</a>",
-            client: "You can download BLI Client here: <a href='https://bliesports.github.io/bliclient'>bliesports.github.io/bliclient</a>",
-            unknown: "I'm sorry, I don't have information about this. I can only help with BLI Client, Orders, and Team info."
+            order: "According to our records, you do not have any recent orders. If you have made a purchase, please check your status on <a href='https://www.shopier.com/' target='_blank'>Shopier</a>.",
+            members: "Authorized personnel within BLI Esports: <br>• FATİH EROL ***** <br>• ÇINAR ********* <br><br>You may apply via <a href='https://bliesports.github.io/recruitment'>Recruitment</a> page.",
+            client: "To access BLI Client software, please use our official download page: <a href='https://bliesports.github.io/bliclient'>bliesports.github.io/bliclient</a>",
+            error: "I apologize, but I do not have information regarding this topic. I can assist you with BLI Client, order status, or team information."
         }
     };
 
-    function handleSend() {
-        const val = userInput.value.trim();
-        if (val === "") return;
+    function sendMessage() {
+        const text = userInput.value.trim();
+        if (text === "") return;
 
-        appendMsg(val, 'user-message');
+        appendMessage(text, 'user');
         userInput.value = "";
-        
-        // AI Yazıyor... animasyonu
-        const loadingDiv = document.createElement('div');
-        loadingDiv.className = 'message ai-message loading-dots';
-        loadingDiv.innerHTML = '<span></span><span></span><span></span>';
-        chatBox.appendChild(loadingDiv);
-        chatBox.scrollTop = chatBox.scrollHeight;
 
         setTimeout(() => {
-            chatBox.removeChild(loadingDiv);
-            const lowerVal = val.toLowerCase();
+            const lowerText = text.toLowerCase();
+            const currentModel = modelSelect.value;
             
-            // Dil algılama (Basit ama etkili)
-            let lang = "en";
-            if (/[açıöüşĞİ]/.test(lowerVal) || lowerVal.includes("nedir") || lowerVal.includes("nası")) lang = "tr";
-
-            let reply = "";
-
-            // Akıllı Kontrol
-            if (lowerVal.includes("sipariş") || lowerVal.includes("order") || lowerVal.includes("kargo")) {
-                reply = responses[lang].order;
-            } else if (lowerVal.includes("üye") || lowerVal.includes("member") || lowerVal.includes("ekip") || lowerVal.includes("fatih") || lowerVal.includes("çınar")) {
-                reply = responses[lang].members;
-            } else if (lowerVal.includes("client") || lowerVal.includes("indir") || lowerVal.includes("download")) {
-                reply = responses[lang].client;
-            } else {
-                reply = responses[lang].unknown;
+            // Gerçek Dil Algılama (İngilizce kelimeler varsa İngilizce cevap verir)
+            let lang = "tr";
+            const englishKeywords = ["hello", "hi", "hey", "order", "what", "how", "who", "sorry", "client"];
+            if (englishKeywords.some(word => lowerText.includes(word)) && !/[açıöüşĞİ]/.test(lowerText)) {
+                lang = "en";
             }
 
-            appendMsg(reply, 'ai-message');
-        }, 1200);
+            let reply = "";
+            let prefix = currentModel >= 3.3 ? "[System v" + currentModel + "]: " : "";
+
+            if (lowerText.includes("sipariş") || lowerText.includes("order")) {
+                reply = prefix + responses[lang].order;
+            } else if (lowerText.includes("üye") || lowerText.includes("member") || lowerText.includes("fatih") || lowerText.includes("çınar")) {
+                reply = prefix + responses[lang].members;
+            } else if (lowerText.includes("client") || lowerText.includes("indir") || lowerText.includes("download")) {
+                reply = prefix + responses[lang].client;
+            } else {
+                reply = prefix + responses[lang].error;
+            }
+
+            appendMessage(reply, 'ai');
+        }, 800);
     }
 
-    function appendMsg(text, type) {
-        const div = document.createElement('div');
-        div.className = `message ${type}`;
-        div.innerHTML = text;
-        chatBox.appendChild(div);
-        chatBox.scrollTop = chatBox.scrollHeight;
+    function appendMessage(text, sender) {
+        const row = document.createElement('div');
+        row.className = `message-row ${sender}`;
+        
+        const content = `
+            <div class="message-content">
+                <div class="avatar ${sender}-avatar">${sender === 'ai' ? 'BI' : 'U'}</div>
+                <div class="text">${text}</div>
+            </div>
+        `;
+        
+        row.innerHTML = content;
+        chatDisplay.appendChild(row);
+        chatDisplay.scrollTop = chatDisplay.scrollHeight;
+
+        // Geçmişe ekle (Sadece kullanıcı mesajlarını)
+        if(sender === 'user') {
+            const hist = document.getElementById('history');
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.innerText = text;
+            hist.prepend(item);
+        }
     }
 </script>
-
 </body>
 </html>
