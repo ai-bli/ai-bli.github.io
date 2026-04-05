@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLI Intelligence | Professional AI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>BLI Intelligence | Professional AI Suite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
@@ -12,85 +12,111 @@
             --sidebar-bg: #0d0d0d;
             --border: #262626;
             --text-main: #ececec;
-            --accent: #ffffff;
+            --text-secondary: #b4b4b4;
+            --accent-white: #ffffff;
+            --input-bg: #202123;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg-black); color: var(--text-main); font-family: 'Inter', sans-serif; height: 100vh; display: flex; overflow: hidden; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-black); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
 
-        /* --- AKILLI SİDEBAR --- */
+        /* --- SİDEBAR --- */
         .sidebar {
             width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border);
             display: flex; flex-direction: column; padding: 10px;
             position: fixed; top: 0; left: 0; bottom: 0;
-            transition: transform 0.3s ease; z-index: 1000;
-            transform: translateX(-100%); /* Varsayılan kapalı */
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000;
+            transform: translateX(-100%);
         }
         .sidebar.open { transform: translateX(0); }
 
-        .sidebar-header { margin-bottom: 10px; }
         .new-chat-btn {
             width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;
             background: transparent; color: white; cursor: pointer; text-align: left;
-            font-size: 14px; display: flex; align-items: center; gap: 10px;
+            font-size: 14px; display: flex; align-items: center; gap: 10px; transition: 0.2s;
         }
         .new-chat-btn:hover { background: #1a1a1a; }
 
-        .history-container { flex: 1; overflow-y: auto; margin-top: 20px; }
+        .history-list { flex: 1; overflow-y: auto; margin-top: 20px; }
         .history-item {
-            padding: 10px; border-radius: 8px; font-size: 13px; color: #b4b4b4;
-            cursor: pointer; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            display: flex; align-items: center; gap: 10px;
+            padding: 10px; border-radius: 8px; font-size: 13px; color: var(--text-secondary);
+            cursor: pointer; margin-bottom: 5px; white-space: nowrap; overflow: hidden; 
+            text-overflow: ellipsis; display: flex; align-items: center; gap: 10px;
         }
         .history-item:hover { background: #1a1a1a; color: white; }
 
         /* --- ANA EKRAN --- */
-        .main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; transition: margin-left 0.3s ease; }
-        
-        /* Menü Butonu & Model Seçici */
-        .nav-bar {
-            padding: 10px 20px; display: flex; align-items: center; justify-content: space-between;
-            position: absolute; top: 0; width: 100%; z-index: 500; background: rgba(0,0,0,0.8);
-        }
-        .menu-trigger { font-size: 20px; cursor: pointer; color: #888; }
-        .menu-trigger:hover { color: white; }
+        .main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
 
-        .model-selector {
-            background: #202123; border: 1px solid var(--border); border-radius: 8px;
-            padding: 5px 10px; color: white; font-size: 14px; outline: none;
+        /* Top Bar */
+        .top-nav {
+            height: 60px; padding: 0 20px; display: flex; align-items: center; 
+            justify-content: space-between; position: absolute; top: 0; width: 100%; 
+            z-index: 500; background: rgba(0,0,0,0.8);
+        }
+        .menu-btn { font-size: 22px; cursor: pointer; color: #888; transition: 0.2s; }
+        .menu-btn:hover { color: white; }
+
+        .model-select {
+            background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px;
+            padding: 8px 12px; color: white; font-size: 14px; outline: none; cursor: pointer;
         }
 
         /* Sohbet Alanı */
-        .chat-view { flex: 1; overflow-y: auto; padding-top: 70px; padding-bottom: 150px; display: flex; flex-direction: column; }
-        
-        .row { width: 100%; display: flex; justify-content: center; padding: 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .row.ai { background: #0a0a0a; }
+        .chat-container {
+            flex: 1; overflow-y: auto; padding-top: 80px; padding-bottom: 160px;
+            display: flex; flex-direction: column; align-items: center;
+        }
 
-        .inner { max-width: 750px; width: 100%; display: flex; gap: 20px; }
-        .avatar { width: 30px; height: 30px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; flex-shrink: 0; }
+        .message-row { width: 100%; display: flex; justify-content: center; padding: 30px 20px; }
+        .message-row.ai { background: #0a0a0a; border-y: 1px solid var(--border); }
+
+        .message-wrapper { max-width: 750px; width: 100%; display: flex; gap: 20px; }
+        .avatar {
+            width: 32px; height: 32px; border-radius: 4px; display: flex; 
+            align-items: center; justify-content: center; font-size: 12px; 
+            font-weight: bold; flex-shrink: 0;
+        }
         .ai-avatar { background: white; color: black; }
         .user-avatar { background: #5436da; color: white; }
 
-        /* Giriş Alanı */
-        .input-area {
-            position: absolute; bottom: 0; width: 100%; padding: 20px 0;
-            background: linear-gradient(transparent, var(--bg-black) 50%);
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .input-box {
-            max-width: 750px; width: 90%; background: #202123; border: 1px solid var(--border);
-            border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; gap: 10px;
-        }
-        input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 15px; }
-        .send-icon { color: #555; cursor: pointer; transition: 0.2s; }
-        .send-icon.active { color: white; }
+        .text-content { font-size: 15px; line-height: 1.6; color: var(--text-main); }
+        .text-content a { color: white; font-weight: 600; text-decoration: underline; }
 
-        /* Kapatma Karartması */
-        .overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.5); 
-            display: none; z-index: 900;
+        /* --- MESAJ YAZMA ALANI (GÜNCELLENDİ) --- */
+        .input-area {
+            position: absolute; bottom: 0; width: 100%; padding: 30px 0;
+            background: linear-gradient(transparent, var(--bg-black) 40%);
+            display: flex; flex-direction: column; align-items: center;
+            z-index: 600;
         }
-        .overlay.show { display: block; }
+
+        .input-container {
+            max-width: 750px; width: 92%; background: var(--input-bg); 
+            border: 1px solid var(--border); border-radius: 14px; padding: 14px 18px;
+            display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+
+        input {
+            flex: 1; background: transparent; border: none; color: white;
+            outline: none; font-size: 15px; padding: 2px 0;
+        }
+
+        .send-btn { color: #555; cursor: pointer; transition: 0.2s; font-size: 20px; }
+        .send-btn.active { color: white; }
+
+        /* Overlay */
+        .overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+            display: none; z-index: 900; backdrop-filter: blur(2px);
+        }
+        .overlay.active { display: block; }
+
+        .footer-text { font-size: 11px; color: #444; margin-top: 15px; letter-spacing: 0.5px; }
+
+        /* Kaydırma Çubuğu */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -99,86 +125,114 @@
 
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <button class="new-chat-btn" onclick="newChat()"><i class="fa-solid fa-plus"></i> New Chat</button>
+            <button class="new-chat-btn" onclick="startNewChat()">
+                <i class="fa-solid fa-plus"></i> Yeni Sohbet
+            </button>
         </div>
-        <div class="history-container" id="historyList">
+        <div class="history-list" id="historyList">
             </div>
-        <div style="font-size: 12px; color: #444; border-top: 1px solid #222; padding-top: 10px;">
-            <i class="fa-solid fa-circle-user"></i> BLI Administrator
+        <div style="padding-top: 15px; border-top: 1px solid #222; font-size: 12px; color: #555;">
+            <i class="fa-solid fa-shield-halved"></i> BLI Intelligence OS v4.0
         </div>
     </div>
 
     <div class="main-content">
-        <div class="nav-bar">
-            <div class="menu-trigger" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></div>
-            <select class="model-selector" id="modelVer">
-                <option value="3.4">BLI Intelligence 3.4</option>
-                <option value="3.3">BLI Intelligence 3.3</option>
+        <div class="top-nav">
+            <div class="menu-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars-staggered"></i></div>
+            <select class="model-select" id="modelSelect">
+                <option value="3.4">BLI Intelligence 3.4 (Advanced)</option>
+                <option value="3.3">BLI Intelligence 3.3 (Pro)</option>
+                <option value="3.2">BLI Intelligence 3.2 (Creative)</option>
             </select>
-            <div style="width: 20px;"></div>
+            <div style="width: 24px;"></div>
         </div>
 
-        <div class="chat-view" id="chatView">
-            <div class="row ai">
-                <div class="inner">
+        <div class="chat-container" id="chatContainer">
+            <div class="message-row ai">
+                <div class="message-wrapper">
                     <div class="avatar ai-avatar">BI</div>
-                    <div class="text">Sistem hazır. Taleplerinizi profesyonel bir dille iletebilirsiniz.</div>
+                    <div class="text-content">
+                        Merhaba. Ben BLI Intelligence. Size BLI Esports ekosistemi, 
+                        BLI Client teknik desteği ve güncel sipariş durumlarınız hakkında 
+                        nasıl yardımcı olabilirim?
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="input-area">
-            <div class="input-box">
-                <input type="text" id="userInput" placeholder="Send a message..." onkeypress="if(event.key==='Enter') send()">
-                <div class="send-icon" onclick="send()"><i class="fa-solid fa-paper-plane"></i></div>
+            <div class="input-container">
+                <i class="fa-solid fa-paperclip" style="color: #666; cursor: pointer;"></i>
+                <input type="text" id="userInput" placeholder="Bir mesaj gönderin..." onkeypress="handleKeyPress(event)" oninput="toggleBtnStyle(this)">
+                <div class="send-btn" id="sendBtn" onclick="processMessage()">
+                    <i class="fa-solid fa-circle-arrow-up"></i>
+                </div>
             </div>
+            <p class="footer-text">BLI Intelligence | Professional Enterprise AI</p>
         </div>
     </div>
 
 <script>
-    let chatActive = false;
-    let currentConversationTitle = "";
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const chatContainer = document.getElementById('chatContainer');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    let isChatActive = false;
 
     function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('open');
-        document.getElementById('overlay').classList.toggle('show');
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
     }
 
-    function newChat() {
-        document.getElementById('chatView').innerHTML = `
-            <div class="row ai"><div class="inner"><div class="avatar ai-avatar">BI</div><div class="text">Yeni bir oturum başlatıldı.</div></div></div>
+    function toggleBtnStyle(el) {
+        if(el.value.trim() !== "") sendBtn.classList.add('active');
+        else sendBtn.classList.remove('active');
+    }
+
+    function handleKeyPress(e) {
+        if(e.key === 'Enter') processMessage();
+    }
+
+    function startNewChat() {
+        chatContainer.innerHTML = `
+            <div class="message-row ai">
+                <div class="message-wrapper">
+                    <div class="avatar ai-avatar">BI</div>
+                    <div class="text-content">Yeni bir oturum başlatıldı. Taleplerinizi iletebilirsiniz.</div>
+                </div>
+            </div>
         `;
-        chatActive = false;
-        currentConversationTitle = "";
+        isChatActive = false;
         toggleSidebar();
     }
 
-    function send() {
-        const input = document.getElementById('userInput');
-        const val = input.value.trim();
-        if(!val) return;
+    function processMessage() {
+        const text = userInput.value.trim();
+        if(!text) return;
 
-        append(val, 'user');
-        input.value = "";
+        appendMessage(text, 'user');
+        userInput.value = "";
+        sendBtn.classList.remove('active');
 
-        // Akıllı Başlık Oluşturma (Konuşmanın ilk mesajında)
-        if(!chatActive) {
-            createTitle(val);
-            chatActive = true;
+        // Akıllı Başlık Oluşturma
+        if(!isChatActive) {
+            updateSidebarTitle(text);
+            isChatActive = true;
         }
 
+        // AI Yanıtı
         setTimeout(() => {
-            const reply = getProResponse(val.toLowerCase());
-            append(reply, 'ai');
-        }, 800);
+            const reply = generateProReply(text.toLowerCase());
+            appendMessage(reply, 'ai');
+        }, 850);
     }
 
-    function createTitle(text) {
-        // İlk mesajdan anlamlı bir başlık çıkar
-        let title = text.length > 20 ? text.substring(0, 20) + "..." : text;
+    function updateSidebarTitle(text) {
+        let title = text.length > 22 ? text.substring(0, 22) + "..." : text;
         if(text.includes("sipariş")) title = "Sipariş Sorgulama";
-        if(text.includes("client")) title = "BLI Client Destek";
-        if(text.includes("üye") || text.includes("ekip")) title = "Ekip Bilgileri";
+        if(text.includes("client") || text.includes("indir")) title = "BLI Client Destek";
+        if(text.includes("üye") || text.includes("ekip")) title = "Ekip Yapılandırması";
 
         const list = document.getElementById('historyList');
         const item = document.createElement('div');
@@ -187,35 +241,36 @@
         list.prepend(item);
     }
 
-    function getProResponse(txt) {
-        let lang = (/[açıöüşĞİ]/.test(txt)) ? "tr" : "en";
-        const model = document.getElementById('modelVer').value;
-        const prefix = `<b>[v${model}]:</b> `;
+    function generateProReply(input) {
+        const model = document.getElementById('modelSelect').value;
+        let lang = (/[açıöüşĞİ]/.test(input)) ? "tr" : "en";
+        const prefix = `<b>[SYSTEM v${model}]:</b> `;
 
-        if(txt.includes("sipariş") || txt.includes("order")) {
-            return prefix + (lang === "tr" ? "Sistemde aktif bir siparişiniz bulunmamaktadır. Shopier panelini kontrol ediniz." : "No active orders found. Please check Shopier.");
+        if(input.includes("sipariş") || input.includes("order")) {
+            return prefix + (lang === "tr" ? "Mevcut veritabanımızda aktif bir siparişiniz bulunmamaktadır. Detaylar için <a href='https://www.shopier.com/'>Shopier</a> panelini ziyaret ediniz." : "No active orders found in our database. Please visit <a href='https://www.shopier.com/'>Shopier</a> for details.");
         }
-        if(txt.includes("client") || txt.includes("indir")) {
-            return prefix + "Yazılım erişimi: <a href='https://bliesports.github.io/bliclient'>bliesports.github.io/bliclient</a>";
+        if(input.includes("client") || input.includes("indir") || input.includes("download")) {
+            return prefix + "BLI Client (v1.2.4) indirme bağlantısı: <a href='https://bliesports.github.io/bliclient'>bliesports.github.io/bliclient</a>";
         }
-        if(txt.includes("fatih") || txt.includes("çınar") || txt.includes("ekip")) {
-            return prefix + "Yetkili Listesi: Fatih Erol (CEO), Çınar (Operations).";
+        if(input.includes("ekip") || input.includes("fatih") || input.includes("çınar")) {
+            return prefix + "Yetkili Listesi: FATİH EROL (CEO), ÇINAR (Operations). Başvuru: <a href='https://bliesports.github.io/recruitment'>Recruitment</a>";
         }
-        return prefix + (lang === "tr" ? "Bu talep için yetkim sınırlı. Lütfen teknik konuları iletin." : "Limited access for this request. Please contact support.");
+        return prefix + (lang === "tr" ? "Talebinizi işleyemedim. Lütfen BLI servisleri hakkında teknik bir soru yöneltiniz." : "I could not process your request. Please ask a technical question regarding BLI services.");
     }
 
-    function append(text, sender) {
-        const view = document.getElementById('chatView');
+    function appendMessage(text, sender) {
         const row = document.createElement('div');
-        row.className = `row ${sender}`;
+        row.className = `message-row ${sender === 'ai' ? 'ai' : ''}`;
         row.innerHTML = `
-            <div class="inner">
-                <div class="avatar ${sender}-avatar">${sender === 'ai' ? 'BI' : 'U'}</div>
-                <div class="text">${text}</div>
+            <div class="message-wrapper">
+                <div class="avatar ${sender === 'ai' ? 'ai-avatar' : 'user-avatar'}">
+                    ${sender === 'ai' ? 'BI' : 'U'}
+                </div>
+                <div class="text-content">${text}</div>
             </div>
         `;
-        view.appendChild(row);
-        view.scrollTop = view.scrollHeight;
+        chatContainer.appendChild(row);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 </script>
 </body>
